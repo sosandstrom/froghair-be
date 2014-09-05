@@ -1,0 +1,16 @@
+pom.xml.releaseBackup
+release.properties
+pom.xml.asc
+*.iml
+nb-configuration.xml
+.project
+.classpath
+.settings/
+.idea/
+
+gen/
+target/
+bin/
+tmp/
+.idea
+*.iml
