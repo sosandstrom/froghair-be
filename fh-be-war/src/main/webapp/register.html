@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <title>Register</title>
+    </head>
+    <body>
+        <form id="createForm">
+            <fieldset id="createFieldset">
+                <input id="userId" type="hidden" value="" />
+
+                <label for="displayName">Name</label>
+                <input id="displayName" type="text" placeholder="First Lastname" value="" />
+
+<!--                <label for="phoneNumber">Mobile</label>
+                <input id="phoneNumber" type="tel" placeholder="+855123456789" value="" />
+-->
+                <label for="email">Email</label>
+                <input id="email" type="email" placeholder="first.last@host.com" value="" />
+
+            </fieldset>
+        </form>
+        <button class="btn btn-primary" id="createButton" onclick="registerDetails();" >Submit</button>
+        
+        <a href="/home.html">Skip</a>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="/js/crud_api.js"></script>
+        <script type="text/javascript">
+$(function() {
+    crud_Read("api/oauth2user", "me")
+    .success(function(data) {
+        console.log(data);
+        $("#userId").val(data.id);
+        $("#displayName").val(data.displayName);
+//        $("#phoneNumber").val(data.phoneNumber);
+        $("#email").val(data.email);
+    });
+});
+
+function registerDetails() {
+    var body = new Object();
+    body.id = $("#userId").val();
+    body.displayName = $("#displayName").val();
+//    body.phoneNumber = $("#phoneNumber").val();
+    body.email = $("#email").val();
+    
+    crud_Update("api/oauth2user", body.id, body)
+    .done(function(data, statusText, jqXHR) {
+        console.info(statusText);
+        document.location.href = "/home.html";
+    });
+}
+        </script>
+    </body>
+</html>
