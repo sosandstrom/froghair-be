@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<datastore-indexes
-    autoGenerate="true">
-    <datastore-index kind="DConnection" ancestor="true" source="auto">
-        <property name="providerId" direction="asc"/>
-        <property name="expireTime" direction="desc"/>
-    </datastore-index>
-</datastore-indexes>
