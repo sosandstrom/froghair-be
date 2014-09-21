@@ -67,8 +67,13 @@ public class NearbyResource {
     this.userDao = userDao;
   }
 
+  /**
+   * Checks in current authenticated user at specified golf club.
+   * @param body
+   * @return List of other users at the same specified golf club.
+   */
   @POST
-  @Consumes(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
   public List<DOAuth2User> checkIn(CheckInRequest body) {
     LOGGER.info(body.getClubGUID());
 
