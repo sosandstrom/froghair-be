@@ -55,7 +55,7 @@ public class NearbyResource {
   public static final String FIELD_USER_ID = DOAuth2User.class.getSimpleName();
   public static final String FIELD_DISPLAY_NAME = "displayName";
   public static final String FIELD_THUMBNAIL_URL = "thumbnailUrl";
-  public static final String FIELD_CREATED_DATE = "createdMillis";
+  public static final String FIELD_CREATED_DATE = "createdSeconds";
 
   @Inject
   private HttpServletRequest request;
@@ -90,7 +90,7 @@ public class NearbyResource {
       .addField(Field.newBuilder().setName(FIELD_CLUB_GUID).setAtom(body.getClubGUID()))
       .addField(Field.newBuilder().setName(FIELD_USER_LOCATION).setGeoPoint(geoPoint))
       .addField(Field.newBuilder().setName(FIELD_DISPLAY_NAME).setAtom(oauth2User.getDisplayName()))
-      .addField(Field.newBuilder().setName(FIELD_CREATED_DATE).setAtom(Long.toString(System.currentTimeMillis())))
+      .addField(Field.newBuilder().setName(FIELD_CREATED_DATE).setNumber(Rank.getCurrentRank()))
       .addField(Field.newBuilder().setName(FIELD_THUMBNAIL_URL).setText(oauth2User.getThumbnailUrl()))
       .build();
     index.put(doc);
@@ -108,7 +108,7 @@ public class NearbyResource {
         FIELD_CREATED_DATE, FIELD_DISPLAY_NAME, FIELD_THUMBNAIL_URL, FIELD_USER_LOCATION))) {
         String userId = scoredDocument.getOnlyField(FIELD_USER_ID).getAtom();
         DOAuth2User user = new DOAuth2User();
-        user.setCreatedDate(new Date(Long.parseLong(scoredDocument.getOnlyField(FIELD_CREATED_DATE).getAtom())));
+        user.setCreatedDate(Rank.getDate(scoredDocument.getOnlyField(FIELD_CREATED_DATE).getNumber().intValue()));
         user.setDisplayName(scoredDocument.getOnlyField(FIELD_DISPLAY_NAME).getAtom());
         user.setId(Long.parseLong(userId));
         user.setThumbnailUrl(scoredDocument.getOnlyField(FIELD_THUMBNAIL_URL).getText());
@@ -126,7 +126,7 @@ public class NearbyResource {
   }
 
   /**
-   * Returns nearby users and golf clubs.
+   * Returns nearby users and golf clubs, as a Pair<List<NearbyUser>, List<DClub>>.
    * @param lat the latitude, defaults to X-AppEngine-CityLatLong
    * @param lon the longitude, defaults to X-AppEngine-CityLatLong
    * @param pageSize defaults to 10
@@ -135,10 +135,11 @@ public class NearbyResource {
    * @return a {@link com.wadpam.mardao.util.Pair}&lt;List&lt;DOAuth2User&gt;, List&lt;DClub&gt;&gt;.
    */
   @GET
-  public Pair getNearby(@QueryParam("lat") Float lat, @QueryParam("lon") Float lon,
-                                                        @QueryParam("pageSize") @DefaultValue("10") int pageSize,
-                                                        @QueryParam("maxDistance") @DefaultValue("10000") int maxDistance,
-                                                        @QueryParam("maxAge") @DefaultValue("18000") int maxAge) {
+  public Pair getNearby(@QueryParam("lat") Float lat,
+                        @QueryParam("lon") Float lon,
+                        @QueryParam("pageSize") @DefaultValue("10") int pageSize,
+                        @QueryParam("maxDistance") @DefaultValue("10000") int maxDistance,
+                        @QueryParam("maxAge") @DefaultValue("18000") int maxAge) {
     if (null == lat || null == lon) {
       final String latLong = request.getHeader("X-AppEngine-CityLatLong");
       lat = Float.parseFloat(latLong.substring(0, latLong.indexOf(',')));
@@ -173,7 +174,7 @@ public class NearbyResource {
     final String queryString =
       distanceExpression + " < " + maxDistance +
       " AND " +
-      FIELD_CREATED_DATE + " > " + Long.toString(System.currentTimeMillis() - maxAge * 1000L);
+      FIELD_CREATED_DATE + " > " + Integer.toString(Rank.getCurrentRank() - maxAge);
     LOGGER.info("getNearby {}", queryString);
 
     Query query = Query.newBuilder()
@@ -188,7 +189,7 @@ public class NearbyResource {
       NearbyUser user = new NearbyUser();
       String userId = scoredDocument.getOnlyField(FIELD_USER_ID).getAtom();
       user.setId(Long.parseLong(userId));
-      user.setCreatedDate(new Date(Long.parseLong(scoredDocument.getOnlyField(FIELD_CREATED_DATE).getAtom())));
+      user.setCreatedDate(Rank.getDate(scoredDocument.getOnlyField(FIELD_CREATED_DATE).getNumber().intValue()));
       user.setDocumentId(scoredDocument.getId());
       for (Field f : scoredDocument.getExpressions()) {
         if (FIELD_DISTANCE_METERS.equals(f.getName())) {
