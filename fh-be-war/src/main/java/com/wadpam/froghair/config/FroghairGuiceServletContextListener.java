@@ -13,6 +13,9 @@ import com.wadpam.froghair.api.NearbyResource;
 import com.wadpam.mardao.guice.MardaoGuiceModule;
 import com.wadpam.mardao.oauth.web.OAuth2Filter;
 
+import net.sf.mardao.dao.DatastoreSupplier;
+import net.sf.mardao.dao.Supplier;
+
 /**
  * Guice me up.
  *
@@ -29,6 +32,7 @@ public class FroghairGuiceServletContextListener extends GuiceServletContextList
       new JerseyServletModule() {
 
         private final void bindDaos() {
+          bind(Supplier.class).to(DatastoreSupplier.class);
         }
         
         private final void bindResources() {

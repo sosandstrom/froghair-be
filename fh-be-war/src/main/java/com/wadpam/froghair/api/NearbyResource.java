@@ -1,5 +1,6 @@
 package com.wadpam.froghair.api;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +34,7 @@ import com.google.appengine.api.search.SortExpression;
 import com.google.appengine.api.search.SortOptions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.wadpam.mardao.oauth.dao.DOAuth2UserDao;
+import com.wadpam.mardao.oauth.dao.DOAuth2UserDaoBean;
 import com.wadpam.mardao.oauth.domain.DOAuth2User;
 import com.wadpam.mardao.oauth.web.OAuth2Filter;
 import com.wadpam.mardao.util.Pair;
@@ -60,10 +61,10 @@ public class NearbyResource {
   @Inject
   private HttpServletRequest request;
 
-  private final DOAuth2UserDao userDao;
+  private final DOAuth2UserDaoBean userDao;
 
   @Inject
-  public NearbyResource(DOAuth2UserDao userDao) {
+  public NearbyResource(DOAuth2UserDaoBean userDao) {
     this.userDao = userDao;
   }
 
@@ -74,12 +75,12 @@ public class NearbyResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
-  public List<DOAuth2User> checkIn(CheckInRequest body) {
+  public List<DOAuth2User> checkIn(CheckInRequest body) throws IOException {
     LOGGER.info(body.getClubGUID());
 
     final Index index = getSearchIndex();
     Long id = (Long)this.request.getAttribute(OAuth2Filter.NAME_USER_ID);
-    final DOAuth2User oauth2User = userDao.findByPrimaryKey(id);
+    final DOAuth2User oauth2User = userDao.get(id);
 
     Float lat = body.getLat();
     Float lon = body.getLon();
